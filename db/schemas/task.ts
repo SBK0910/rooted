@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { InferSelectModel, sql } from "drizzle-orm";
 import {
     boolean,
     check,
@@ -48,3 +48,5 @@ export const tasks = pgTable(
         }).onDelete("cascade"),
     ]
 );
+
+export type TaskRecord = InferSelectModel<typeof tasks>;
