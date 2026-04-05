@@ -30,12 +30,16 @@ export const tasks = pgTable(
         updatedAt: timestamp("updated_at", { withTimezone: true })
             .notNull()
             .defaultNow(),
-        scheduledDate: date("scheduled_date").notNull().default(sql`CURRENT_DATE`),
+        scheduledDate: date("scheduled_date"),
     },
     (table) => [
         check(
-            "tasks_type_fields_check",
-            sql`(${table.type} = 'leaf' AND ${table.completed} IS NOT NULL AND ${table.weight} IS NOT NULL) OR (${table.type} = 'group' AND ${table.completed} IS NULL AND ${table.weight} IS NULL)`
+            "tasks_leaf_fields_check",
+            sql`${table.type} <> 'leaf' OR (${table.completed} IS NOT NULL AND ${table.weight} IS NOT NULL AND ${table.scheduledDate} IS NOT NULL)`
+        ),
+        check(
+            "tasks_group_fields_check",
+            sql`${table.type} <> 'group' OR (${table.completed} IS NULL AND ${table.weight} IS NULL AND ${table.scheduledDate} IS NULL)`
         ),
         foreignKey({
             columns: [table.parentId],

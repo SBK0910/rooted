@@ -15,6 +15,13 @@
       "when": 1775350413321,
       "tag": "0001_boring_calypso",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1775374535020,
+      "tag": "0002_tiresome_doctor_doom",
+      "breakpoints": true
     }
   ]
 }
