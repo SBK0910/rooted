@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import {
     boolean,
     check,
+    date,
     foreignKey,
     integer,
     pgEnum,
@@ -29,6 +30,7 @@ export const tasks = pgTable(
         updatedAt: timestamp("updated_at", { withTimezone: true })
             .notNull()
             .defaultNow(),
+        scheduledDate: date("scheduled_date").notNull().default(sql`CURRENT_DATE`),
     },
     (table) => [
         check(

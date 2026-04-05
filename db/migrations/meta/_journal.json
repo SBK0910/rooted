@@ -8,6 +8,13 @@
       "when": 1775311400057,
       "tag": "0000_blue_colossus",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1775350413321,
+      "tag": "0001_boring_calypso",
+      "breakpoints": true
     }
   ]
 }
