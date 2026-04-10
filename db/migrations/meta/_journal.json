@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1775311400057,
-      "tag": "0000_blue_colossus",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1775350413321,
-      "tag": "0001_boring_calypso",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1775374535020,
-      "tag": "0002_tiresome_doctor_doom",
+      "when": 1775862214718,
+      "tag": "0000_swift_quentin_quire",
       "breakpoints": true
     }
   ]

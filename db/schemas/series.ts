@@ -1,6 +1,7 @@
-import { InferSelectModel } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import {
     boolean,
+    check,
     date,
     foreignKey,
     integer,
@@ -9,40 +10,33 @@ import {
     timestamp,
     uuid,
 } from "drizzle-orm/pg-core";
-import { series } from "./series";
 import { views } from "./view";
 
-
-export const tasks = pgTable(
-    "tasks",
+export const series = pgTable(
+    "series",
     {
         id: uuid("id").defaultRandom().primaryKey(),
+        viewId: uuid("view_id").notNull(),
         title: text("title").notNull(),
         description: text("description"),
-        completed: boolean("completed").notNull().default(false),
         weight: integer("weight").notNull().default(1),
+        isActive: boolean("is_active").notNull().default(true),
+        rrule: text("rrule").notNull(),
+        lastGeneratedDate: date("last_generated_date"),
         createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
             .notNull()
             .defaultNow(),
         updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" })
             .notNull()
             .defaultNow(),
-        scheduledDate: date("scheduled_date").notNull(),
-        viewId: uuid("view_id").notNull(),
-        seriesId: uuid("series_id"),
     },
     (table) => [
         foreignKey({
             columns: [table.viewId],
             foreignColumns: [views.id],
-            name: "tasks_view_id_fkey",
+            name: "series_view_id_fkey",
         }).onDelete("restrict"),
-        foreignKey({
-            columns: [table.seriesId],
-            foreignColumns: [series.id],
-            name: "tasks_series_id_fkey",
-        }).onDelete("set null"),
+
+        check("series_weight_check", sql`${table.weight} > 0`),
     ]
 );
-
-export type TaskRecord = InferSelectModel<typeof tasks>;
