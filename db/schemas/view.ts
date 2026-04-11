@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { check, foreignKey, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { boolean, check, foreignKey, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 export const views = pgTable("views", {
     id: uuid("id")
@@ -20,6 +20,9 @@ export const views = pgTable("views", {
     })
         .notNull()
         .defaultNow(),
+    isActive: boolean("is_active")
+        .notNull()
+        .default(true),
     parentId: uuid("parent_id"),
 }, (table) => [
     foreignKey({
