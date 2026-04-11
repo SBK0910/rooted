@@ -3,27 +3,15 @@ import db from "..";
 import { views } from "../schemas/view";
 import { DatabaseError } from "@neondatabase/serverless";
 import { withPagination } from "../utils/pagination";
+import { HttpError } from "@/features/shared/errors/http-error";
 
 class ViewRepo {
     async fetchViews(page: number, pageSize: number, orderBy: string) {
-        if (page < 1 || pageSize < 1) {
-            throw new Error("Page and pageSize must be greater than 0.");
-        }
-
-        if (!(orderBy.startsWith("-") || orderBy.startsWith("+"))) {
-            throw new Error("Invalid orderBy format. Must start with '+' or '-'.");
-        }
-
-        const orderColumn = orderBy.slice(1);
-
-        if (orderColumn !== "createdAt") {
-            throw new Error("Invalid orderBy column. Only 'createdAt' is allowed.");
-        }
-
         const query = db
             .select()
             .from(views)
-            .$dynamic()
+            .where(eq(views.isActive, true))
+            .$dynamic();
 
         if (orderBy.startsWith("-")) {
             query.orderBy(desc(views.createdAt));
@@ -31,16 +19,28 @@ class ViewRepo {
             query.orderBy(asc(views.createdAt));
         }
 
-
         try {
             const data = await withPagination(query, page, pageSize);
             return data;
         } catch {
-            throw new Error("Failed to fetch views.");
+            throw new HttpError(500, "Failed to fetch views.");
         }
-
     }
-    async createView(title: string, description?: string, parentId?: string) {
+
+    async getViewById(id: string) {
+        try {
+            const [view] = await db
+                .select()
+                .from(views)
+                .where(eq(views.id, id))
+                .limit(1);
+            return view ?? null;
+        } catch {
+            throw new HttpError(500, "Failed to fetch view.");
+        }
+    }
+
+    async createView(title: string, description?: string, parentId?: string | null) {
         try {
             const [newView] = await db
                 .insert(views)
@@ -55,16 +55,19 @@ class ViewRepo {
             if (error instanceof DrizzleQueryError) {
                 if (error.cause instanceof DatabaseError) {
                     if (error.cause.code === "23514" && error.cause.constraint === "views_parent_id_check") {
-                        throw new Error("Invalid parentId: cannot reference itself or create circular reference.");
+                        throw new HttpError(400, "Invalid parentId: cannot reference itself.");
                     }
                     if (error.cause.code === "23503" && error.cause.constraint === "views_parent_id_fkey") {
-                        throw new Error("Invalid parentId: referenced view does not exist.");
+                        throw new HttpError(400, "Invalid parentId: referenced view does not exist.");
                     }
                 }
             }
+
+            throw new HttpError(500, "Failed to create view.");
         }
     }
-    async updateView(id: string, title?: string, description?: string, parentId?: string) {
+
+    async updateView(id: string, title?: string, description?: string, parentId?: string | null) {
         try {
             const [updatedView] = await db
                 .update(views)
@@ -75,28 +78,36 @@ class ViewRepo {
                 })
                 .where(eq(views.id, id))
                 .returning();
-            return updatedView;
+            return updatedView ?? null;
         } catch (error) {
             if (error instanceof DrizzleQueryError) {
                 if (error.cause instanceof DatabaseError) {
                     if (error.cause.code === "23514" && error.cause.constraint === "views_parent_id_check") {
-                        throw new Error("Invalid parentId: cannot reference itself or create circular reference.");
+                        throw new HttpError(400, "Invalid parentId: cannot reference itself.");
                     }
                     if (error.cause.code === "23503" && error.cause.constraint === "views_parent_id_fkey") {
-                        throw new Error("Invalid parentId: referenced view does not exist.");
+                        throw new HttpError(400, "Invalid parentId: referenced view does not exist.");
+                    }
+                    if (error.cause.code === "23505" && error.cause.constraint === "views_title_key") {
+                        throw new HttpError(409, "A view with the same title already exists.");
                     }
                 }
             }
+
+            throw new HttpError(500, "Failed to update view.");
         }
     }
-    async deleteView(id: string) {
+
+    async disableView(id: string) {
         try {
-            await db
+            const [disabled] = await db
                 .update(views)
                 .set({ isActive: false })
-                .where(eq(views.id, id));
+                .where(eq(views.id, id))
+                .returning();
+            return disabled ?? null;
         } catch {
-            throw new Error("Failed to delete view.");
+            throw new HttpError(500, "Failed to disable view.");
         }
     }
 }
