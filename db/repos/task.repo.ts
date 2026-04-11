@@ -1,11 +1,60 @@
-import { and, asc, desc, DrizzleQueryError, eq } from "drizzle-orm";
+import { and, asc, desc, DrizzleQueryError, eq, sql } from "drizzle-orm";
 import db from "..";
-import { tasks } from "../schemas/task";
+import { TaskRecord, tasks } from "../schemas/task";
 import { DatabaseError } from "@neondatabase/serverless";
 import { withPagination } from "../utils/pagination";
 import { HttpError } from "@/features/shared/errors/http-error";
+import { ViewRecord } from "../schemas/view";
 
 class TaskRepo {
+    async fetchTaskTreeContextByDate(scheduledDate: string) {
+        try {
+            const result = await db.execute<{ payload: { tasks: TaskRecord[]; views: ViewRecord[] } }>(sql`
+                WITH RECURSIVE
+                day_tasks AS (
+                    SELECT t.*
+                    FROM tasks t
+                    WHERE t.scheduled_date = CAST(${scheduledDate} AS date)
+                ),
+                ancestor_views AS (
+                    SELECT v.*, ARRAY[v.id] AS path
+                    FROM views v
+                    WHERE v.id IN (
+                        SELECT DISTINCT t.view_id
+                        FROM day_tasks t
+                        WHERE t.view_id IS NOT NULL
+                    )
+
+                    UNION ALL
+
+                    SELECT p.*, av.path || p.id
+                    FROM views p
+                                        JOIN ancestor_views av ON av.parent_id = p.id
+                    WHERE NOT (p.id = ANY(av.path))
+                ),
+                distinct_views AS (
+                    SELECT DISTINCT ON (v.id)
+                      v.id, v.title, v.description, v.parent_id, v.created_at, v.updated_at, v.is_active
+                    FROM ancestor_views v
+                    ORDER BY v.id
+                )
+                SELECT jsonb_build_object(
+                    'tasks', COALESCE((SELECT jsonb_agg(to_jsonb(dt)) FROM day_tasks dt), '[]'::jsonb),
+                    'views', COALESCE((SELECT jsonb_agg(to_jsonb(vw)) FROM distinct_views vw), '[]'::jsonb)
+                ) AS payload;
+            `);
+
+            const payload = result.rows[0]?.payload;
+            if (!payload) {
+                return { tasks: [], views: [] };
+            }
+
+            return payload;
+        } catch {
+            throw new HttpError(500, "Failed to fetch task tree context.");
+        }
+    }
+
     async fetchTasks(
         page: number,
         pageSize: number,

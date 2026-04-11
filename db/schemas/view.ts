@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { InferSelectModel, sql } from "drizzle-orm";
 import { boolean, check, foreignKey, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 export const views = pgTable("views", {
@@ -32,3 +32,5 @@ export const views = pgTable("views", {
     }).onDelete("restrict"),
     check("views_parent_id_check", sql`(parent_id IS NULL) OR (parent_id != id)`)
 ])
+
+export type ViewRecord = InferSelectModel<typeof views>;

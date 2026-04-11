@@ -24,6 +24,11 @@ export const listTasksQuerySchema = z.object({
         .optional(),
 });
 
+export const taskTreeQuerySchema = z.object({
+    scheduledDate: z
+        .iso.date({ message: "ScheduledDate must be a valid date string" }),
+});
+
 export const createTaskSchema = z.object({
     title: z
         .string({ message: "Title must be a string" })
@@ -78,6 +83,7 @@ export const taskIdParamSchema = z.object({
 });
 
 export type ListTasksQuery = z.infer<typeof listTasksQuerySchema>;
+export type TaskTreeQuery = z.infer<typeof taskTreeQuerySchema>;
 export type CreateTaskInput = z.infer<typeof createTaskSchema>;
 export type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
 export type TaskIdParam = z.infer<typeof taskIdParamSchema>;
