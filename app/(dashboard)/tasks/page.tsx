@@ -23,7 +23,7 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
     const selectedDate = params.date?.length ? params.date : today;
 
     return (
-        <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 px-6 py-10 sm:px-10">
+        <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 overflow-hidden px-6 py-10 sm:px-10">
             {/* Page heading */}
             <div>
                 <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
