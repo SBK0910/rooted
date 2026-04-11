@@ -15,6 +15,13 @@
       "when": 1775865869977,
       "tag": "0001_glamorous_black_cat",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1775875519566,
+      "tag": "0002_yellow_johnny_storm",
+      "breakpoints": true
     }
   ]
 }

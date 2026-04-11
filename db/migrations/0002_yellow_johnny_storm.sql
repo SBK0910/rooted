@@ -1,0 +1,1 @@
+ALTER TABLE "tasks" ALTER COLUMN "view_id" DROP NOT NULL;

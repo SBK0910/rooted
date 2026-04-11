@@ -28,7 +28,7 @@ export const tasks = pgTable(
             .notNull()
             .defaultNow(),
         scheduledDate: date("scheduled_date").notNull(),
-        viewId: uuid("view_id").notNull(),
+        viewId: uuid("view_id"),
         seriesId: uuid("series_id"),
     },
     (table) => [
