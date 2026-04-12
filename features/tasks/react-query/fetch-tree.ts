@@ -13,6 +13,7 @@ export function getFetchTaskTreeQueryOptions(scheduledDate: string) {
             }
 
             const payload = await response.json();
+            console.log("Fetched task tree context:", payload);
 
             const data = taskTreeResponseSchema.safeParse(payload);
             if (!data.success) {

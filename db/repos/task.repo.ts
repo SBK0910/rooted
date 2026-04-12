@@ -39,8 +39,29 @@ class TaskRepo {
                     ORDER BY v.id
                 )
                 SELECT jsonb_build_object(
-                    'tasks', COALESCE((SELECT jsonb_agg(to_jsonb(dt)) FROM day_tasks dt), '[]'::jsonb),
-                    'views', COALESCE((SELECT jsonb_agg(to_jsonb(vw)) FROM distinct_views vw), '[]'::jsonb)
+                    'tasks', COALESCE((
+                        SELECT jsonb_agg(jsonb_build_object(
+                            'id', dt.id,
+                            'title', dt.title,
+                            'description', dt.description,
+                            'completed', dt.completed,
+                            'weight', dt.weight,
+                            'createdAt', dt.created_at,
+                            'updatedAt', dt.updated_at,
+                            'scheduledDate', dt.scheduled_date,
+                            'viewId', dt.view_id,
+                            'seriesId', dt.series_id
+                        )) FROM day_tasks dt), '[]'::jsonb),
+                    'views', COALESCE((
+                        SELECT jsonb_agg(jsonb_build_object(
+                            'id', vw.id,
+                            'title', vw.title,
+                            'description', vw.description,
+                            'createdAt', vw.created_at,
+                            'updatedAt', vw.updated_at,
+                            'isActive', vw.is_active,
+                            'parentId', vw.parent_id
+                        )) FROM distinct_views vw), '[]'::jsonb)
                 ) AS payload;
             `);
 
