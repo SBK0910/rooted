@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
 import { createTaskSchema } from "@/features/tasks/contracts/task.contract";
+import { useCreateTaskMutation } from "@/features/tasks/react-query/create-task";
 
 type CreateTaskFormValues = z.infer<typeof createTaskSchema>;
 
@@ -30,12 +31,13 @@ type CreateTaskFormProps = {
 
 export function CreateTaskForm({ scheduledDate, onSuccess }: CreateTaskFormProps) {
     const [calendarOpen, setCalendarOpen] = useState(false);
+    const createTask = useCreateTaskMutation();
 
     const {
         register,
         control,
         handleSubmit,
-        formState: { errors, isSubmitting },
+        formState: { errors },
     } = useForm<CreateTaskFormValues>({
         resolver: zodResolver(createTaskSchema),
         defaultValues: {
@@ -45,17 +47,7 @@ export function CreateTaskForm({ scheduledDate, onSuccess }: CreateTaskFormProps
     });
 
     async function onSubmit(values: CreateTaskFormValues) {
-        const response = await fetch("/api/tasks", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(values),
-        });
-
-        if (!response.ok) {
-            const data = await response.json();
-            throw new Error(data.error ?? "Failed to create task");
-        }
-
+        await createTask.mutateAsync(values);
         onSuccess?.();
     }
 
@@ -164,8 +156,8 @@ export function CreateTaskForm({ scheduledDate, onSuccess }: CreateTaskFormProps
                 </Field>
             </FieldGroup>
 
-            <Button type="submit" disabled={isSubmitting} className="w-full">
-                {isSubmitting ? "Creating…" : "Create task"}
+            <Button type="submit" disabled={createTask.isPending} className="w-full">
+                {createTask.isPending ? "Creating…" : "Create task"}
             </Button>
         </form>
     );
