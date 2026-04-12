@@ -1,16 +1,23 @@
 "use client";
 
+import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Pencil } from "lucide-react";
+import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+import { Accordion as AccordionPrimitive } from "radix-ui";
 import {
     Accordion,
     AccordionContent,
     AccordionItem,
-    AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+import { EditViewForm } from "@/features/views/components/forms/edit-view-form";
 
 import type { ViewTreeNode, TaskRecord } from "@/features/tasks/contracts/task.contract";
 import DeleteTask from "./actions/delete-task";
@@ -60,41 +67,52 @@ function TaskRow({ task }: { task: TaskRecord }) {
 }
 
 function ViewNode({ node, depth = 0 }: { node: ViewTreeNode; depth?: number }) {
+    const [editOpen, setEditOpen] = useState(false);
+
     return (
-        <AccordionItem value={node.id} className="group/view relative border-none">
-            <AccordionTrigger
-                className={cn(
-                    "rounded-lg px-3 py-2 pr-14 hover:bg-muted/50 hover:no-underline",
-                    depth > 0 && "font-normal"
-                )}
-            >
-                <span className={cn("text-sm", depth === 0 ? "font-medium" : "font-normal")}>
-                    {node.title}
-                </span>
-            </AccordionTrigger>
-            <Button
-                variant="ghost"
-                size="icon"
-                className="absolute right-7 top-1 h-6 w-6 opacity-0 group-hover/view:opacity-100"
-                onClick={(e: React.MouseEvent) => e.stopPropagation()}
-            >
-                <Pencil className="h-3 w-3" />
-            </Button>
-            <AccordionContent className="pb-0">
-                <div className="ml-5 space-y-0.5 border-l pl-4 pb-1">
-                    {node.tasks.map((task) => (
-                        <TaskRow key={task.id} task={task} />
-                    ))}
-                    {node.children.length > 0 && (
-                        <Accordion type="multiple" defaultValue={node.children.map((c) => c.id)}>
-                            {node.children.map((child) => (
-                                <ViewNode key={child.id} node={child} depth={depth + 1} />
-                            ))}
-                        </Accordion>
-                    )}
-                </div>
-            </AccordionContent>
-        </AccordionItem>
+        <>
+            <AccordionItem value={node.id} className="border-none">
+                <AccordionPrimitive.Header className="flex">
+                    <button
+                        type="button"
+                        onClick={() => setEditOpen(true)}
+                        className={cn(
+                            "flex-1 rounded-l-lg px-3 py-2 text-left text-sm hover:bg-muted/50",
+                            depth === 0 ? "font-medium" : "font-normal"
+                        )}
+                    >
+                        {node.title}
+                    </button>
+                    <AccordionPrimitive.Trigger className="group/chevron flex items-center rounded-r-lg px-3 py-2 hover:bg-muted/50 outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                        <ChevronDownIcon className="h-4 w-4 text-muted-foreground group-aria-expanded/chevron:hidden" />
+                        <ChevronUpIcon className="hidden h-4 w-4 text-muted-foreground group-aria-expanded/chevron:inline" />
+                    </AccordionPrimitive.Trigger>
+                </AccordionPrimitive.Header>
+                <AccordionContent className="pb-0">
+                    <div className="ml-5 space-y-0.5 border-l pl-4 pb-1">
+                        {node.tasks.map((task) => (
+                            <TaskRow key={task.id} task={task} />
+                        ))}
+                        {node.children.length > 0 && (
+                            <Accordion type="multiple" defaultValue={node.children.map((c) => c.id)}>
+                                {node.children.map((child) => (
+                                    <ViewNode key={child.id} node={child} depth={depth + 1} />
+                                ))}
+                            </Accordion>
+                        )}
+                    </div>
+                </AccordionContent>
+            </AccordionItem>
+
+            <Dialog open={editOpen} onOpenChange={setEditOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Edit view</DialogTitle>
+                    </DialogHeader>
+                    <EditViewForm view={node} onSuccess={() => setEditOpen(false)} />
+                </DialogContent>
+            </Dialog>
+        </>
     );
 }
 
