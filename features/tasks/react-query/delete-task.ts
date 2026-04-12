@@ -1,8 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 async function deleteTask(id: string): Promise<void> {
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const response = await fetch(`/api/tasks/${encodeURIComponent(id)}`, {
         method: "DELETE",
+        headers: { "X-Timezone": timezone },
     });
 
     if (!response.ok) {

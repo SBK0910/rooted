@@ -6,9 +6,10 @@ type CreateTaskInput = z.infer<typeof createTaskSchema>;
 type TaskRecord = z.infer<typeof taskRecordSchema>;
 
 async function createTask(input: CreateTaskInput): Promise<TaskRecord> {
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const response = await fetch("/api/tasks", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-Timezone": timezone },
         body: JSON.stringify(input),
     });
 

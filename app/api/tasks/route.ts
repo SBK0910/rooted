@@ -7,6 +7,7 @@ import {
 } from "@/features/tasks/contracts/task.contract";
 import { z } from "zod";
 import { HttpError } from "@/features/shared/errors/http-error";
+import { getTodayInTimezone } from "@/lib/utils";
 
 export async function GET(request: NextRequest) {
     const queryResult = listTasksQuerySchema.safeParse({
@@ -60,6 +61,15 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
             { error: z.prettifyError(inputResult.error) },
             { status: 400 }
+        );
+    }
+
+    const tz = request.headers.get("X-Timezone") ?? "UTC";
+    const today = getTodayInTimezone(tz);
+    if (inputResult.data.scheduledDate < today) {
+        return NextResponse.json(
+            { error: "Cannot create a task for a past date" },
+            { status: 422 }
         );
     }
 

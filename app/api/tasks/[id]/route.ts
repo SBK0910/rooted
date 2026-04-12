@@ -7,6 +7,7 @@ import {
 } from "@/features/tasks/contracts/task.contract";
 import { HttpError } from "@/features/shared/errors/http-error";
 import { z } from "zod";
+import { getTodayInTimezone } from "@/lib/utils";
 
 type RouteContext = {
     params: Promise<{ id: string }>;
@@ -85,7 +86,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     }
 }
 
-export async function DELETE(_: NextRequest, context: RouteContext) {
+export async function DELETE(request: NextRequest, context: RouteContext) {
     const params = await context.params;
     const paramResult = taskIdParamSchema.safeParse(params);
 
@@ -97,6 +98,20 @@ export async function DELETE(_: NextRequest, context: RouteContext) {
     }
 
     try {
+        const task = await taskRepo.getTaskById(paramResult.data.id);
+        if (!task) {
+            return NextResponse.json({ error: "Task not found" }, { status: 404 });
+        }
+
+        const tz = request.headers.get("X-Timezone") ?? "UTC";
+        const today = getTodayInTimezone(tz);
+        if (task.scheduledDate < today) {
+            return NextResponse.json(
+                { error: "Cannot delete a task scheduled for a past date" },
+                { status: 403 }
+            );
+        }
+
         const deleted = await taskRepo.deleteTask(paramResult.data.id);
         if (!deleted) {
             return NextResponse.json({ error: "Task not found" }, { status: 404 });
