@@ -7,7 +7,7 @@ import { TaskCalendar } from "./task-calendar";
 import { TaskTreeLoader } from "./task-tree-loader";
 import { TaskTreeSkeleton } from "./task-tree-skeleton";
 import { TaskTreeError } from "./task-tree-error";
-import CreateTask from "./actions/create-task";
+import Create from "./actions/create";
 
 type TasksViewProps = {
     initialDate: string;
@@ -28,7 +28,7 @@ export function TasksView({ initialDate }: TasksViewProps) {
                     </ErrorBoundary>
                 )}
             </QueryErrorResetBoundary>
-            <CreateTask scheduledDate={selectedDate}/>
+            <Create scheduledDate={selectedDate} />
         </>
     );
 }

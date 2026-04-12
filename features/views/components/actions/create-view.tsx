@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -10,28 +10,29 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { CreateTaskForm } from "../forms/create-task-form";
+import { CreateViewForm } from "@/features/views/components/forms/create-view-form";
 
-type CreateTaskProps = {
-    scheduledDate: string;
+type CreateViewProps = {
+    parentId?: string | null;
 };
 
-export default function CreateTask({ scheduledDate }: CreateTaskProps) {
+export function CreateView({ parentId }: CreateViewProps) {
     const [open, setOpen] = useState(false);
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button size="icon" className="fixed bottom-6 right-6 size-10 rounded-full shadow-lg">
-                    <Plus className="size-4" />
+                <Button variant="outline" size="sm">
+                    <PlusIcon className="h-4 w-4 mr-1" />
+                    New view
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle>New task</DialogTitle>
+                    <DialogTitle>Create view</DialogTitle>
                 </DialogHeader>
-                <CreateTaskForm
-                    scheduledDate={scheduledDate}
+                <CreateViewForm
+                    parentId={parentId}
                     onSuccess={() => setOpen(false)}
                 />
             </DialogContent>

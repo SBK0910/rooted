@@ -21,6 +21,7 @@ import {
 import { cn } from "@/lib/utils";
 import { createTaskSchema } from "@/features/tasks/contracts/task.contract";
 import { useCreateTaskMutation } from "@/features/tasks/react-query/create-task";
+import { ViewCombobox } from "@/features/views/components/view-combobox";
 
 type CreateTaskFormValues = z.infer<typeof createTaskSchema>;
 
@@ -151,6 +152,25 @@ export function CreateTaskForm({ scheduledDate, onSuccess }: CreateTaskFormProps
                     {errors.scheduledDate && (
                         <FieldDescription className="text-destructive">
                             {errors.scheduledDate.message}
+                        </FieldDescription>
+                    )}
+                </Field>
+
+                <Field data-invalid={!!errors.viewId}>
+                    <FieldTitle>View</FieldTitle>
+                    <Controller
+                        control={control}
+                        name="viewId"
+                        render={({ field }) => (
+                            <ViewCombobox
+                                value={field.value}
+                                onChange={field.onChange}
+                            />
+                        )}
+                    />
+                    {errors.viewId && (
+                        <FieldDescription className="text-destructive">
+                            {errors.viewId.message}
                         </FieldDescription>
                     )}
                 </Field>
