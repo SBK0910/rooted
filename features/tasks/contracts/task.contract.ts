@@ -48,7 +48,10 @@ export const createTaskSchema = z.object({
         .uuid({ message: "ViewId must be a valid UUID" })
         .optional()
         .nullable(),
-});
+}).refine(
+    (data) => data.scheduledDate >= new Date().toISOString().slice(0, 10),
+    { message: "Cannot create a task for a past date", path: ["scheduledDate"] }
+);
 
 export const updateTaskSchema = z
     .object({
