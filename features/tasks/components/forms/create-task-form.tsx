@@ -1,11 +1,16 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useState } from "react";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { format, parseISO } from "date-fns";
+import { CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
     Field,
     FieldGroup,
@@ -13,6 +18,7 @@ import {
     FieldTitle,
     FieldDescription,
 } from "@/components/ui/field";
+import { cn } from "@/lib/utils";
 import { createTaskSchema } from "@/features/tasks/contracts/task.contract";
 
 type CreateTaskFormValues = z.infer<typeof createTaskSchema>;
@@ -23,8 +29,11 @@ type CreateTaskFormProps = {
 };
 
 export function CreateTaskForm({ scheduledDate, onSuccess }: CreateTaskFormProps) {
+    const [calendarOpen, setCalendarOpen] = useState(false);
+
     const {
         register,
+        control,
         handleSubmit,
         formState: { errors, isSubmitting },
     } = useForm<CreateTaskFormValues>({
@@ -108,12 +117,45 @@ export function CreateTaskForm({ scheduledDate, onSuccess }: CreateTaskFormProps
                 </Field>
 
                 <Field data-invalid={!!errors.scheduledDate}>
-                    <FieldLabel>
-                        <FieldTitle>
-                            Date <span className="text-destructive">*</span>
-                        </FieldTitle>
-                        <Input {...register("scheduledDate")} type="date" />
-                    </FieldLabel>
+                    <FieldTitle>
+                        Date <span className="text-destructive">*</span>
+                    </FieldTitle>
+                    <Controller
+                        control={control}
+                        name="scheduledDate"
+                        render={({ field }) => (
+                            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        className={cn(
+                                            "w-full justify-start text-left font-normal",
+                                            !field.value && "text-muted-foreground"
+                                        )}
+                                    >
+                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                        {field.value
+                                            ? format(parseISO(field.value), "PPP")
+                                            : "Pick a date"}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0" align="start">
+                                    <Calendar
+                                        mode="single"
+                                        selected={field.value ? parseISO(field.value) : undefined}
+                                        onSelect={(date) => {
+                                            field.onChange(date ? format(date, "yyyy-MM-dd") : "");
+                                            setCalendarOpen(false);
+                                        }}
+                                        disabled={(date) =>
+                                            date < new Date(new Date().setHours(0, 0, 0, 0))
+                                        }
+                                        initialFocus
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                        )}
+                    />
                     {errors.scheduledDate && (
                         <FieldDescription className="text-destructive">
                             {errors.scheduledDate.message}
@@ -128,3 +170,6 @@ export function CreateTaskForm({ scheduledDate, onSuccess }: CreateTaskFormProps
         </form>
     );
 }
+
+
+
