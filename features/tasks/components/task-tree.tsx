@@ -1,6 +1,6 @@
 "use client";
 
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
     Accordion,
@@ -13,6 +13,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent } from "@/components/ui/card";
 
 import type { ViewTreeNode, TaskRecord } from "@/features/tasks/contracts/task.contract";
+import DeleteTask from "./actions/delete-task";
 
 type TaskTreeProps = {
     tree: ViewTreeNode[];
@@ -51,14 +52,7 @@ function TaskRow({ task }: { task: TaskRecord }) {
             >
                 <Pencil className="h-3 w-3" />
             </Button>
-            <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 shrink-0 opacity-0 group-hover:opacity-100 hover:text-destructive"
-                onClick={(e) => e.stopPropagation()}
-            >
-                <Trash2 className="h-3 w-3" />
-            </Button>
+            <DeleteTask taskId={task.id} scheduledDate={task.scheduledDate} />
         </RadioGroup>
     );
 }
