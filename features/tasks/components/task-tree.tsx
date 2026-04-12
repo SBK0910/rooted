@@ -1,7 +1,7 @@
 "use client";
 
-import { Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Pencil } from "lucide-react";
 import {
     Accordion,
     AccordionContent,
@@ -9,11 +9,13 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 
 import type { ViewTreeNode, TaskRecord } from "@/features/tasks/contracts/task.contract";
 import DeleteTask from "./actions/delete-task";
+import EditTask from "./actions/edit-task";
+import { useToggleTaskMutation } from "@/features/tasks/react-query/toggle-task";
 
 type TaskTreeProps = {
     tree: ViewTreeNode[];
@@ -21,17 +23,24 @@ type TaskTreeProps = {
 };
 
 function TaskRow({ task }: { task: TaskRecord }) {
+    const toggleTask = useToggleTaskMutation(task.scheduledDate);
+    const isPastDate = task.scheduledDate < new Date().toLocaleDateString("en-CA");
+
     return (
-        <RadioGroup
-            value={task.completed ? task.id : undefined}
+        <div
             className={cn(
                 "group flex w-full flex-row items-center gap-3 rounded-lg px-3 py-2 hover:bg-muted/50",
                 task.completed && "opacity-50"
             )}
         >
-            <RadioGroupItem value={task.id} id={task.id} disabled />
+            <Checkbox
+                checked={task.completed}
+                disabled={isPastDate || toggleTask.isPending}
+                onCheckedChange={(checked) =>
+                    toggleTask.mutate({ id: task.id, completed: checked === true })
+                }
+            />
             <label
-                htmlFor={task.id}
                 className={cn(
                     "flex-1 cursor-default text-sm",
                     task.completed && "line-through text-muted-foreground"
@@ -44,16 +53,9 @@ function TaskRow({ task }: { task: TaskRecord }) {
                     ×{task.weight}
                 </span>
             )}
-            <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 shrink-0 opacity-0 group-hover:opacity-100"
-                onClick={(e) => e.stopPropagation()}
-            >
-                <Pencil className="h-3 w-3" />
-            </Button>
-            <DeleteTask taskId={task.id} scheduledDate={task.scheduledDate} />
-        </RadioGroup>
+            <EditTask task={task} className="h-6 w-6 shrink-0 opacity-0 group-hover:opacity-100" />
+            <DeleteTask taskId={task.id} scheduledDate={task.scheduledDate} className="opacity-0 group-hover:opacity-100" />
+        </div>
     );
 }
 
@@ -74,7 +76,7 @@ function ViewNode({ node, depth = 0 }: { node: ViewTreeNode; depth?: number }) {
                 variant="ghost"
                 size="icon"
                 className="absolute right-7 top-1 h-6 w-6 opacity-0 group-hover/view:opacity-100"
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e: React.MouseEvent) => e.stopPropagation()}
             >
                 <Pencil className="h-3 w-3" />
             </Button>

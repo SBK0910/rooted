@@ -62,6 +62,20 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     }
 
     try {
+        const task = await taskRepo.getTaskById(paramResult.data.id);
+        if (!task) {
+            return NextResponse.json({ error: "Task not found" }, { status: 404 });
+        }
+
+        const tz = request.headers.get("X-Timezone") ?? "UTC";
+        const today = getTodayInTimezone(tz);
+        if (task.scheduledDate < today) {
+            return NextResponse.json(
+                { error: "Cannot edit a task scheduled for a past date" },
+                { status: 403 }
+            );
+        }
+
         const updated = await taskRepo.updateTask(
             paramResult.data.id,
             inputResult.data.title,

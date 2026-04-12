@@ -7,9 +7,10 @@ import { useDeleteTaskMutation } from "@/features/tasks/react-query/delete-task"
 type DeleteTaskProps = {
     taskId: string;
     scheduledDate: string;
+    className?: string;
 };
 
-export default function DeleteTask({ taskId, scheduledDate }: DeleteTaskProps) {
+export default function DeleteTask({ taskId, scheduledDate, className }: DeleteTaskProps) {
     const deleteTask = useDeleteTaskMutation(scheduledDate);
     const today = new Date().toISOString().slice(0, 10);
     const isPastDate = scheduledDate < today;
@@ -21,6 +22,7 @@ export default function DeleteTask({ taskId, scheduledDate }: DeleteTaskProps) {
             disabled={isPastDate || deleteTask.isPending}
             onClick={() => deleteTask.mutate(taskId)}
             aria-label="Delete task"
+            className={className}
         >
             <Trash2 className="size-4" />
         </Button>
