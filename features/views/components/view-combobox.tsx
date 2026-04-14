@@ -31,7 +31,7 @@ type ViewComboboxContentProps = ViewComboboxProps & {
 
 function ViewComboboxContent({ value, onChange, disabled, open, setOpen }: ViewComboboxContentProps) {
     const { data } = useSuspenseQuery({
-        ...getUseListQueryOptions({isActive: true}),
+        ...getUseListQueryOptions({isActive: true, pageSize: 100}),
     })
 
     const views = data?.data ?? [];

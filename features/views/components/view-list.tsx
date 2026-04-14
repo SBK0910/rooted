@@ -11,7 +11,7 @@ type ViewListProps = {
 
 export function ViewList({ search = "" }: ViewListProps) {
     const { data } = useSuspenseQuery({
-        ...getUseListQueryOptions({isActive: false}),
+        ...getUseListQueryOptions({ pageSize: 100 }),
     })
 
     const query = search.trim().toLowerCase();
