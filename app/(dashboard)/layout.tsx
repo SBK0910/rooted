@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Profile from "@/components/profile";
+import DarkMode from "@/components/dark-mode";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     return (
@@ -14,6 +15,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         <Button variant="secondary" size="default" asChild>
                             <Link href="/tasks">Tasks</Link>
                         </Button>
+                        <DarkMode />
                         <Profile />
                     </div>
                 </nav>

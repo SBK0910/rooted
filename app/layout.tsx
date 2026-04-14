@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/sonner"
 
 import "./globals.css";
 import QueryProvider from "@/components/providers/query-provider";
+import { ThemeProvider } from "@/components/providers/theme-provider";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -27,18 +28,21 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<QueryProvider>
-			<html
-				lang="en"
-				className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-			>
-				<ClerkProvider>
+		<ClerkProvider>
+			<QueryProvider>
+				<html
+					lang="en"
+					className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+					suppressHydrationWarning
+				>
 					<body className="min-h-full flex flex-col">
-						{children}
-						<Toaster />
+						<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+							{children}
+							<Toaster />
+						</ThemeProvider>
 					</body>
-				</ClerkProvider>
-			</html>
-		</QueryProvider>
+				</html>
+			</QueryProvider>
+		</ClerkProvider>
 	);
 }
