@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { updateViewSchema } from "../contracts/view.contract";
 import type { ViewRecord } from "./create-view";
+import { toast } from "sonner";
 
 type UpdateViewInput = z.infer<typeof updateViewSchema>;
 
@@ -14,6 +15,7 @@ async function updateView(id: string, input: UpdateViewInput): Promise<ViewRecor
 
     if (!response.ok) {
         const errorData = await response.json();
+        console.error("Failed to update view:", errorData);
         throw new Error(errorData.error ?? "Failed to update view");
     }
 
@@ -29,5 +31,8 @@ export function useUpdateViewMutation() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["taskTree"] });
         },
+        onError: (error) => {
+            toast.error(error instanceof Error ? error.message : "Failed to update view");
+        }
     });
 }

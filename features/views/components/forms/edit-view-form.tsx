@@ -1,8 +1,7 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,14 +12,13 @@ import {
     FieldTitle,
     FieldDescription,
 } from "@/components/ui/field";
-import { updateViewSchema } from "@/features/views/contracts/view.contract";
+import { UpdateViewInput, updateViewSchema } from "@/features/views/contracts/view.contract";
 import { useUpdateViewMutation } from "@/features/views/react-query/update-view";
-import type { ViewTreeNode } from "@/features/tasks/contracts/task.contract";
+import { ViewCombobox } from "@/features/views/components/view-combobox";
 
-type EditViewFormValues = z.infer<typeof updateViewSchema>;
 
 type EditViewFormProps = {
-    view: ViewTreeNode;
+    view: UpdateViewInput & { id: string };
     onSuccess?: () => void;
 };
 
@@ -30,16 +28,18 @@ export function EditViewForm({ view, onSuccess }: EditViewFormProps) {
     const {
         register,
         handleSubmit,
+        control,
         formState: { errors },
-    } = useForm<EditViewFormValues>({
+    } = useForm<UpdateViewInput>({
         resolver: zodResolver(updateViewSchema),
         defaultValues: {
             title: view.title,
-            description: view.description ?? undefined,
+            description: view.description,
+            parentId: view.parentId,
         },
     });
 
-    async function onSubmit(values: EditViewFormValues) {
+    async function onSubmit(values: UpdateViewInput) {
         await updateView.mutateAsync({ id: view.id, input: values });
         onSuccess?.();
     }
@@ -77,6 +77,25 @@ export function EditViewForm({ view, onSuccess }: EditViewFormProps) {
                     {errors.description && (
                         <FieldDescription className="text-destructive">
                             {errors.description.message}
+                        </FieldDescription>
+                    )}
+                </Field>
+
+                <Field data-invalid={!!errors.parentId}>
+                    <FieldTitle>Parent view</FieldTitle>
+                    <Controller
+                        name="parentId"
+                        control={control}
+                        render={({ field }) => (
+                            <ViewCombobox
+                                value={field.value}
+                                onChange={field.onChange}
+                            />
+                        )}
+                    />
+                    {errors.parentId && (
+                        <FieldDescription className="text-destructive">
+                            {errors.parentId.message}
                         </FieldDescription>
                     )}
                 </Field>

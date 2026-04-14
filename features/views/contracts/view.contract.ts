@@ -59,7 +59,8 @@ export const updateViewSchema = z
             .optional(),
         description: z
             .string({ message: "Description must be a string" })
-            .optional(),
+            .optional()
+            .nullable(),
         parentId: z
             .uuid({ message: "ParentId must be a valid UUID" })
             .optional()

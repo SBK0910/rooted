@@ -16,8 +16,6 @@ type EditViewProps = {
 };
 
 export function EditView({ view, open, onOpenChange }: EditViewProps) {
-    // EditViewForm only reads id, title, description — spread missing tree fields
-    const viewNode = { ...view, children: [], tasks: [] };
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -26,7 +24,12 @@ export function EditView({ view, open, onOpenChange }: EditViewProps) {
                     <DialogTitle>Edit view</DialogTitle>
                 </DialogHeader>
                 <EditViewForm
-                    view={viewNode}
+                    view={{
+                        id: view.id,
+                        title: view.title,
+                        description: view.description,
+                        parentId: view.parentId,
+                    }}
                     onSuccess={() => onOpenChange(false)}
                 />
             </DialogContent>

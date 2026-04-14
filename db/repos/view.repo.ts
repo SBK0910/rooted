@@ -1,7 +1,7 @@
 import { asc, desc, DrizzleQueryError, eq } from "drizzle-orm";
 import db from "..";
 import { views } from "../schemas/view";
-import { DatabaseError } from "@neondatabase/serverless";
+import { NeonDbError } from "@neondatabase/serverless";
 import { withPagination } from "../utils/pagination";
 import { HttpError } from "@/features/shared/errors/http-error";
 
@@ -40,7 +40,7 @@ class ViewRepo {
         }
     }
 
-    async createView(title: string, description?: string, parentId?: string | null) {
+    async createView(title: string, description?: string | null, parentId?: string | null) {
         try {
             const [newView] = await db
                 .insert(views)
@@ -53,7 +53,7 @@ class ViewRepo {
             return newView;
         } catch (error) {
             if (error instanceof DrizzleQueryError) {
-                if (error.cause instanceof DatabaseError) {
+                if (error.cause instanceof NeonDbError) {
                     if (error.cause.code === "23514" && error.cause.constraint === "views_parent_id_check") {
                         throw new HttpError(400, "Invalid parentId: cannot reference itself.");
                     }
@@ -67,7 +67,7 @@ class ViewRepo {
         }
     }
 
-    async updateView(id: string, title?: string, description?: string, parentId?: string | null) {
+    async updateView(id: string, title?: string, description?: string | null, parentId?: string | null) {
         try {
             const [updatedView] = await db
                 .update(views)
@@ -81,7 +81,7 @@ class ViewRepo {
             return updatedView ?? null;
         } catch (error) {
             if (error instanceof DrizzleQueryError) {
-                if (error.cause instanceof DatabaseError) {
+                if (error.cause instanceof NeonDbError) {
                     if (error.cause.code === "23514" && error.cause.constraint === "views_parent_id_check") {
                         throw new HttpError(400, "Invalid parentId: cannot reference itself.");
                     }
