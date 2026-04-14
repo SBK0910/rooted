@@ -3,12 +3,10 @@ import { useDisableViewMutation } from "../../react-query/disable-view";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, } from "@/components/ui/alert-dialog";
+import { ViewRecord } from "../../react-query/create-view";
 
 interface DisableViewProps {
-    view: {
-        id: string;
-        title: string;
-    }
+    view: Pick<ViewRecord, "id" | "title">;
 }
 
 export default function DisableView({ view }: DisableViewProps) {

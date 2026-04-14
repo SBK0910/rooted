@@ -58,7 +58,7 @@ export function ViewList({ search = "" }: ViewListProps) {
                             )}
 
                             <div className="flex items-center gap-0.5">
-                                <EditView view={view} />
+                                <EditView view={{id: view.id, title: view.title, description: view.description, parentId: view.parentId}} />
                                 <DisableView view={{ id: view.id, title: view.title }} />
                             </div>
                         </div>

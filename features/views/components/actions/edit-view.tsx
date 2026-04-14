@@ -14,7 +14,7 @@ import type { ViewRecord } from "@/features/views/react-query/create-view";
 import { useState } from "react";
 
 type EditViewProps = {
-    view: ViewRecord;
+    view: Pick<ViewRecord, "id" | "title" | "description" | "parentId">;
 };
 
 export function EditView({ view }: EditViewProps) {
@@ -38,12 +38,7 @@ export function EditView({ view }: EditViewProps) {
                     <DialogTitle>Edit view</DialogTitle>
                 </DialogHeader>
                 <EditViewForm
-                    view={{
-                        id: view.id,
-                        title: view.title,
-                        description: view.description,
-                        parentId: view.parentId,
-                    }}
+                    view={view}
                     onSuccess={() => { setOpen(false) }}
                 />
             </DialogContent>
