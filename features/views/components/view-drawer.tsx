@@ -1,7 +1,7 @@
 "use client";
 
-import { PanelRight, Search } from "lucide-react";
-import { useState } from "react";
+import { Loader2, PanelRight, Search } from "lucide-react";
+import { Suspense, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,6 +14,9 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { CreateView } from "@/features/views/components/actions/create-view";
 import { ViewList } from "@/features/views/components/view-list";
+import { QueryErrorResetBoundary } from "@tanstack/react-query";
+import { ErrorBoundary } from "react-error-boundary";
+import ErrorFallback from "@/components/error-fallback";
 
 export default function ViewDrawer() {
     const [search, setSearch] = useState("");
@@ -49,13 +52,24 @@ export default function ViewDrawer() {
                         />
                     </div>
                 </div>
+                <div className="h-full p-1">
+                    <QueryErrorResetBoundary>
+                        {({ reset }) => (
+                            <ErrorBoundary onReset={reset} fallbackRender={({ error, resetErrorBoundary }) => (<ErrorFallback error={error} resetErrorBoundary={resetErrorBoundary} message="Failed to load views" />)}>
+                                <Suspense fallback={
+                                    <div className="flex items-center justify-center py-10">
+                                        <Loader2 className="size-5 animate-spin text-muted-foreground" />
+                                    </div>
+                                }>
+                                    <ViewList search={search} />
+                                </Suspense>
+                            </ErrorBoundary>
 
-                <div className="flex-1 overflow-y-auto px-3 py-2">
-                    <ViewList search={search} />
+                        )}
+                    </QueryErrorResetBoundary>
                 </div>
 
                 <Separator />
-
                 <div className="px-4 py-3">
                     <CreateView />
                 </div>

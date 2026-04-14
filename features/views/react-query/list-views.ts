@@ -1,18 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import type { ViewRecord } from "./create-view";
+import { listViewsResponseSchema, type ListViewsResponse } from "../contracts/view.contract";
 
 type ListViewsParams = {
     page?: number;
     pageSize?: number;
     orderBy?: "+createdAt" | "-createdAt";
-};
-
-type ListViewsResponse = {
-    data: ViewRecord[];
-    meta: {
-        page: number;
-        pageSize: number;
-    };
 };
 
 async function listViews(params: ListViewsParams = {}): Promise<ListViewsResponse> {
@@ -28,12 +20,21 @@ async function listViews(params: ListViewsParams = {}): Promise<ListViewsRespons
         throw new Error(errorData.error ?? "Failed to fetch views");
     }
 
-    return response.json();
+    const parsedResponse = listViewsResponseSchema.safeParse(await response.json());
+    if (!parsedResponse.success) {
+        throw new Error("Failed to parse views response");
+    }
+
+    return parsedResponse.data;
 }
 
 export function useListViewsQuery(params: ListViewsParams = {}) {
-    return useQuery({
+    return useQuery(getUseListQueryOptions(params));
+}
+
+export function getUseListQueryOptions(params: ListViewsParams = {}) {
+    return {
         queryKey: ["views", params],
         queryFn: () => listViews(params),
-    });
+    };
 }

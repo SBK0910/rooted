@@ -1,5 +1,23 @@
 import { z } from "zod";
 
+export const viewRecordSchema = z.object({
+    id: z.uuid(),
+    title: z.string(),
+    description: z.string().nullable(),
+    isActive: z.boolean(),
+    parentId: z.uuid().nullable(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+});
+
+export const listViewsResponseSchema = z.object({
+    data: z.array(viewRecordSchema),
+    meta: z.object({
+        page: z.number().int(),
+        pageSize: z.number().int(),
+    }),
+});
+
 export const listViewsQuerySchema = z.object({
     page: z.coerce
         .number()
@@ -55,6 +73,8 @@ export const viewIdParamSchema = z.object({
     id: z.uuid({ message: "Invalid view ID" }),
 });
 
+export type ViewRecord = z.infer<typeof viewRecordSchema>;
+export type ListViewsResponse = z.infer<typeof listViewsResponseSchema>;
 export type ListViewsQuery = z.infer<typeof listViewsQuerySchema>;
 export type CreateViewInput = z.infer<typeof createViewSchema>;
 export type UpdateViewInput = z.infer<typeof updateViewSchema>;
