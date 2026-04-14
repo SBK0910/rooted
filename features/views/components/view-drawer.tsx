@@ -18,7 +18,7 @@ import { QueryErrorResetBoundary } from "@tanstack/react-query";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallback from "@/components/error-fallback";
 
-export default function ViewDrawer() {
+export default function ViewDrawer({ inline = false }: { inline?: boolean }) {
     const [search, setSearch] = useState("");
 
     return (
@@ -27,7 +27,7 @@ export default function ViewDrawer() {
                 <Button
                     variant="outline"
                     size="icon"
-                    className="fixed right-4 top-17 z-20 shadow-sm"
+                    className={inline ? undefined : "fixed right-4 top-17 z-20 shadow-sm"}
                     aria-label="Open views"
                 >
                     <PanelRight className="size-4" />
