@@ -30,6 +30,7 @@ export function useUpdateViewMutation() {
             updateView(id, input),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["taskTree"] });
+            queryClient.invalidateQueries({ queryKey: ["views"] });
         },
         onError: (error) => {
             toast.error(error instanceof Error ? error.message : "Failed to update view");
