@@ -176,7 +176,7 @@ export function CreateTaskForm({ scheduledDate, onSuccess }: CreateTaskFormProps
                 </Field>
             </FieldGroup>
 
-            <Button type="submit" disabled={createTask.isPending} className="w-full">
+            <Button type="submit" disabled={createTask.isPending} className="w-full cursor-pointer">
                 {createTask.isPending ? "Creating…" : "Create task"}
             </Button>
         </form>
