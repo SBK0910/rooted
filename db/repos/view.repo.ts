@@ -6,11 +6,11 @@ import { withPagination } from "../utils/pagination";
 import { HttpError } from "@/features/shared/errors/http-error";
 
 class ViewRepo {
-    async fetchViews(page: number, pageSize: number, orderBy: string) {
+    async fetchViews(page: number, pageSize: number, orderBy: string, isActive: boolean) {
         const query = db
             .select()
             .from(views)
-            .where(eq(views.isActive, true))
+            .where(eq(views.isActive, isActive))
             .$dynamic();
 
         if (orderBy.startsWith("-")) {

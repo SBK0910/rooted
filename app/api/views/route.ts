@@ -13,6 +13,7 @@ export async function GET(request: NextRequest) {
         page: request.nextUrl.searchParams.get("page") ?? undefined,
         pageSize: request.nextUrl.searchParams.get("pageSize") ?? undefined,
         orderBy: request.nextUrl.searchParams.get("orderBy") ?? undefined,
+        isActive: request.nextUrl.searchParams.get("isActive") ?? undefined,
     });
 
     if (!queryResult.success) {
@@ -26,7 +27,9 @@ export async function GET(request: NextRequest) {
         const data = await viewRepo.fetchViews(
             queryResult.data.page,
             queryResult.data.pageSize,
-            queryResult.data.orderBy
+            queryResult.data.orderBy,
+            queryResult.data.isActive
+
         );
         return NextResponse.json(
             {

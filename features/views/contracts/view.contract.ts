@@ -34,6 +34,11 @@ export const listViewsQuerySchema = z.object({
         .string()
         .regex(/^[+-]createdAt$/, "orderBy must be +createdAt or -createdAt")
         .default("-createdAt"),
+    isActive: z
+        .string()
+        .regex(/^(true|false)$/, "isActive must be 'true' or 'false'")
+        .transform((val) => val === "true")
+        .default(true),
 });
 
 export const createViewSchema = z.object({
