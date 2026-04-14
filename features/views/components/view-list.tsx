@@ -1,9 +1,10 @@
 "use client";
 
 import { LayoutList } from "lucide-react";
-import { ViewItem } from "@/features/views/components/view-item";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { getUseListQueryOptions } from "../react-query/list-views";
+import DisableView from "./actions/disable-view";
+import { EditView } from "./actions/edit-view";
 
 type ViewListProps = {
     search?: string;
@@ -35,7 +36,33 @@ export function ViewList({ search = "" }: ViewListProps) {
         <ul className="flex flex-col gap-0.5">
             {views.map((view) => (
                 <li key={view.id}>
-                    <ViewItem view={view} />
+                    <>
+                        <div className="group flex items-center gap-2.5 rounded-md px-2 py-1.5 hover:bg-accent transition-colors">
+                            {/* Icon */}
+                            <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+                                <LayoutList className="size-3.5" />
+                            </div>
+
+                            {/* Text */}
+                            <div className="min-w-0 flex-1">
+                                <p className="truncate text-sm font-medium leading-tight">{view.title}</p>
+                                {view.description && (
+                                    <p className="truncate text-xs text-muted-foreground leading-tight mt-0.5">
+                                        {view.description}
+                                    </p>
+                                )}
+                            </div>
+
+                            {view.isActive && (
+                                <span className="size-1.5 shrink-0 rounded-full bg-primary" />
+                            )}
+
+                            <div className="flex items-center gap-0.5">
+                                <EditView view={view} />
+                                <DisableView view={{ id: view.id, title: view.title }} />
+                            </div>
+                        </div>
+                    </>
                 </li>
             ))}
         </ul>

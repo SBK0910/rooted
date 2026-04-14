@@ -1,24 +1,38 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
+    DialogTrigger,
 } from "@/components/ui/dialog";
 import { EditViewForm } from "@/features/views/components/forms/edit-view-form";
+import { Pencil } from "lucide-react";
 import type { ViewRecord } from "@/features/views/react-query/create-view";
+import { useState } from "react";
 
 type EditViewProps = {
     view: ViewRecord;
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
 };
 
-export function EditView({ view, open, onOpenChange }: EditViewProps) {
+export function EditView({ view }: EditViewProps) {
+
+    const [open, setOpen] = useState(false);
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-6 shrink-0 cursor-pointer"
+                    aria-label="Edit view"
+                >
+                    <Pencil className="size-4" />
+                </Button>
+            </DialogTrigger>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle>Edit view</DialogTitle>
@@ -30,7 +44,7 @@ export function EditView({ view, open, onOpenChange }: EditViewProps) {
                         description: view.description,
                         parentId: view.parentId,
                     }}
-                    onSuccess={() => onOpenChange(false)}
+                    onSuccess={() => { setOpen(false) }}
                 />
             </DialogContent>
         </Dialog>
