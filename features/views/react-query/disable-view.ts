@@ -21,7 +21,6 @@ export function useDisableViewMutation() {
         mutationFn: (id: string) => disableView(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["views"] });
-            queryClient.invalidateQueries({ queryKey: ["taskTree"] });
         },
     });
 }

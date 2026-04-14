@@ -35,7 +35,6 @@ export function useCreateViewMutation() {
     return useMutation({
         mutationFn: createView,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["taskTree"] });
             queryClient.invalidateQueries({ queryKey: ["views"] });
         },
     });
