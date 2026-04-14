@@ -4,6 +4,7 @@ type ListViewsParams = {
     page?: number;
     pageSize?: number;
     orderBy?: "+createdAt" | "-createdAt";
+    isActive?: boolean;
 };
 
 async function listViews(params: ListViewsParams = {}): Promise<ListViewsResponse> {
@@ -11,7 +12,7 @@ async function listViews(params: ListViewsParams = {}): Promise<ListViewsRespons
     if (params.page !== undefined) searchParams.set("page", String(params.page));
     if (params.pageSize !== undefined) searchParams.set("pageSize", String(params.pageSize));
     if (params.orderBy !== undefined) searchParams.set("orderBy", params.orderBy);
-
+    if (params.isActive !== undefined) searchParams.set("isActive", String(params.isActive));
     const response = await fetch(`/api/views?${searchParams.toString()}`);
 
     if (!response.ok) {
