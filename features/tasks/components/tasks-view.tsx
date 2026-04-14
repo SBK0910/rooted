@@ -4,10 +4,10 @@ import { Suspense, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { QueryErrorResetBoundary } from "@tanstack/react-query";
 import { TaskCalendar } from "./task-calendar";
-import { TaskTreeLoader } from "./task-tree-loader";
 import { TaskTreeSkeleton } from "./task-tree-skeleton";
-import { TaskTreeError } from "./task-tree-error";
 import CreateTask from "./actions/create-task";
+import ErrorFallback from "@/components/error-fallback";
+import { TaskTree } from "./task-tree";
 
 type TasksViewProps = {
     initialDate: string;
@@ -21,9 +21,9 @@ export function TasksView({ initialDate }: TasksViewProps) {
             <TaskCalendar selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
             <QueryErrorResetBoundary>
                 {({ reset }) => (
-                    <ErrorBoundary FallbackComponent={TaskTreeError} onReset={reset}>
+                    <ErrorBoundary onReset={reset} fallbackRender={({ error, resetErrorBoundary }) => <ErrorFallback error={error} resetErrorBoundary={resetErrorBoundary} message="Failed to load Tasks" />}>
                         <Suspense fallback={<TaskTreeSkeleton />}>
-                            <TaskTreeLoader selectedDate={selectedDate} />
+                            <TaskTree selectedDate={selectedDate}/>
                         </Suspense>
                     </ErrorBoundary>
                 )}

@@ -23,10 +23,11 @@ import type { ViewTreeNode, TaskRecord } from "@/features/tasks/contracts/task.c
 import DeleteTask from "./actions/delete-task";
 import EditTask from "./actions/edit-task";
 import { useToggleTaskMutation } from "@/features/tasks/react-query/toggle-task";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { getFetchTaskTreeQueryOptions } from "../react-query/fetch-tree";
 
 type TaskTreeProps = {
-    tree: ViewTreeNode[];
-    unassignedTasks: TaskRecord[];
+    selectedDate: string;
 };
 
 function TaskRow({ task }: { task: TaskRecord }) {
@@ -60,8 +61,8 @@ function TaskRow({ task }: { task: TaskRecord }) {
                     ×{task.weight}
                 </span>
             )}
-            <EditTask task={task} className="h-6 w-6 shrink-0 opacity-0 group-hover:opacity-100" />
-            <DeleteTask taskId={task.id} scheduledDate={task.scheduledDate} className="opacity-0 group-hover:opacity-100" />
+            <EditTask task={task} className="size-4 shrink-0" />
+            <DeleteTask taskId={task.id} scheduledDate={task.scheduledDate} className="size-4" />
         </div>
     );
 }
@@ -116,8 +117,10 @@ function ViewNode({ node, depth = 0 }: { node: ViewTreeNode; depth?: number }) {
     );
 }
 
-export function TaskTree({ tree, unassignedTasks }: TaskTreeProps) {
-    if (tree.length === 0 && unassignedTasks.length === 0) {
+export function TaskTree({ selectedDate }: TaskTreeProps) {
+    const { data } = useSuspenseQuery(getFetchTaskTreeQueryOptions(selectedDate));
+
+    if (data.tree.length === 0 && data.unassignedTasks.length === 0) {
         return (
             <Card className="flex flex-1 flex-col items-center justify-center py-20 text-center">
                 <p className="text-sm font-medium text-muted-foreground">No tasks for this day</p>
@@ -128,18 +131,18 @@ export function TaskTree({ tree, unassignedTasks }: TaskTreeProps) {
     return (
         <Card className="flex min-h-0 flex-1 flex-col">
             <CardContent className="min-h-0 flex-1 overflow-y-auto p-3">
-                <Accordion type="multiple" defaultValue={tree.map((n) => n.id)}>
-                    {tree.map((node) => (
+                <Accordion type="multiple" defaultValue={data.tree.map((n) => n.id)}>
+                    {data.tree.map((node) => (
                         <ViewNode key={node.id} node={node} />
                     ))}
                 </Accordion>
 
-                {unassignedTasks.length > 0 && (
+                {data.unassignedTasks.length > 0 && (
                     <div className="pt-1">
                         <p className="px-3 pb-1 pt-2 text-[0.65rem] font-medium uppercase tracking-wider text-muted-foreground">
                             Unassigned
                         </p>
-                        {unassignedTasks.map((task) => (
+                        {data.unassignedTasks.map((task) => (
                             <TaskRow key={task.id} task={task} />
                         ))}
                     </div>
