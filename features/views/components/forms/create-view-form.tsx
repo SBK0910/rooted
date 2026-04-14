@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/field";
 import { createViewSchema } from "@/features/views/contracts/view.contract";
 import { useCreateViewMutation } from "@/features/views/react-query/create-view";
+import { ViewCombobox } from "@/features/views/components/view-combobox";
 
 type CreateViewFormValues = z.infer<typeof createViewSchema>;
 
@@ -29,6 +30,7 @@ export function CreateViewForm({ parentId, onSuccess }: CreateViewFormProps) {
     const {
         register,
         handleSubmit,
+        control,
         formState: { errors },
     } = useForm<CreateViewFormValues>({
         resolver: zodResolver(createViewSchema),
@@ -75,6 +77,25 @@ export function CreateViewForm({ parentId, onSuccess }: CreateViewFormProps) {
                     {errors.description && (
                         <FieldDescription className="text-destructive">
                             {errors.description.message}
+                        </FieldDescription>
+                    )}
+                </Field>
+
+                <Field data-invalid={!!errors.parentId}>
+                    <FieldTitle>Parent view</FieldTitle>
+                    <Controller
+                        name="parentId"
+                        control={control}
+                        render={({ field }) => (
+                            <ViewCombobox
+                                value={field.value}
+                                onChange={field.onChange}
+                            />
+                        )}
+                    />
+                    {errors.parentId && (
+                        <FieldDescription className="text-destructive">
+                            {errors.parentId.message}
                         </FieldDescription>
                     )}
                 </Field>

@@ -12,11 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { CreateViewForm } from "@/features/views/components/forms/create-view-form";
 
-type CreateViewProps = {
-    parentId?: string | null;
-};
-
-export function CreateView({ parentId }: CreateViewProps) {
+export function CreateView() {
     const [open, setOpen] = useState(false);
 
     return (
@@ -32,7 +28,6 @@ export function CreateView({ parentId }: CreateViewProps) {
                     <DialogTitle>Create view</DialogTitle>
                 </DialogHeader>
                 <CreateViewForm
-                    parentId={parentId}
                     onSuccess={() => setOpen(false)}
                 />
             </DialogContent>
