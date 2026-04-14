@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import Profile from "@/components/profile";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     return (
@@ -10,12 +11,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         Rooted
                     </Link>
                     <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="default" asChild>
-                            <Link href="/">Home</Link>
-                        </Button>
                         <Button variant="secondary" size="default" asChild>
                             <Link href="/tasks">Tasks</Link>
                         </Button>
+                        <Profile />
                     </div>
                 </nav>
             </header>
