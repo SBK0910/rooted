@@ -1,4 +1,5 @@
 import { TasksView } from "@/features/tasks/components/tasks-view";
+import ViewDrawer from "@/features/views/components/view-drawer";
 
 type TasksPageProps = {
     searchParams: Promise<{ date?: string }>;
@@ -33,6 +34,7 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
                     {formatDisplayDate(selectedDate)}
                 </h1>
             </div>
+            <ViewDrawer />
 
             <TasksView initialDate={selectedDate} />
         </main>
