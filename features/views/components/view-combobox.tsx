@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronsUpDownIcon, CheckIcon } from "lucide-react";
+import { Suspense, useState } from "react";
+import { ChevronsUpDownIcon, CheckIcon, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     Command,
@@ -13,7 +13,10 @@ import {
 } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { useListViewsQuery } from "@/features/views/react-query/list-views";
+import { QueryErrorResetBoundary, useSuspenseQuery } from "@tanstack/react-query";
+import { ErrorBoundary } from "react-error-boundary";
+import ErrorFallback from "@/components/error-fallback";
+import { getUseListQueryOptions } from "../react-query/list-views";
 
 type ViewComboboxProps = {
     value: string | null | undefined;
@@ -21,9 +24,15 @@ type ViewComboboxProps = {
     disabled?: boolean;
 };
 
-export function ViewCombobox({ value, onChange, disabled }: ViewComboboxProps) {
-    const [open, setOpen] = useState(false);
-    const { data, isPending } = useListViewsQuery({ pageSize: 100 });
+type ViewComboboxContentProps = ViewComboboxProps & {
+    open: boolean;
+    setOpen: (open: boolean) => void;
+};
+
+function ViewComboboxContent({ value, onChange, disabled, open, setOpen }: ViewComboboxContentProps) {
+    const { data } = useSuspenseQuery({
+        ...getUseListQueryOptions(),
+    })
 
     const views = data?.data ?? [];
     const selected = views.find((v) => v.id === value);
@@ -35,7 +44,7 @@ export function ViewCombobox({ value, onChange, disabled }: ViewComboboxProps) {
                     variant="outline"
                     role="combobox"
                     aria-expanded={open}
-                    disabled={disabled || isPending}
+                    disabled={disabled}
                     className={cn(
                         "w-full justify-between font-normal",
                         !selected && "text-muted-foreground"
@@ -88,5 +97,47 @@ export function ViewCombobox({ value, onChange, disabled }: ViewComboboxProps) {
                 </Command>
             </PopoverContent>
         </Popover>
+    );
+}
+
+export function ViewCombobox({ value, onChange, disabled }: ViewComboboxProps) {
+    const [open, setOpen] = useState(false);
+
+    return (
+        <QueryErrorResetBoundary>
+            {({ reset }) => (
+                <ErrorBoundary
+                    onReset={reset}
+                    fallbackRender={({ error, resetErrorBoundary }) => (
+                        <ErrorFallback
+                            error={error}
+                            resetErrorBoundary={resetErrorBoundary}
+                            message="Failed to load views"
+                        />
+                    )}
+                >
+                    <Suspense
+                        fallback={
+                            <Button
+                                variant="outline"
+                                disabled
+                                className="w-full justify-between font-normal text-muted-foreground"
+                            >
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Loading views…
+                            </Button>
+                        }
+                    >
+                        <ViewComboboxContent
+                            value={value}
+                            onChange={onChange}
+                            disabled={disabled}
+                            open={open}
+                            setOpen={setOpen}
+                        />
+                    </Suspense>
+                </ErrorBoundary>
+            )}
+        </QueryErrorResetBoundary>
     );
 }

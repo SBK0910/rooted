@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
 import { listViewsResponseSchema, type ListViewsResponse } from "../contracts/view.contract";
 
 type ListViewsParams = {
@@ -26,10 +25,6 @@ async function listViews(params: ListViewsParams = {}): Promise<ListViewsRespons
     }
 
     return parsedResponse.data;
-}
-
-export function useListViewsQuery(params: ListViewsParams = {}) {
-    return useQuery(getUseListQueryOptions(params));
 }
 
 export function getUseListQueryOptions(params: ListViewsParams = {}) {
