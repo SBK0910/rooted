@@ -18,15 +18,11 @@ export default function Page() {
     const finalizeSignIn = async () => {
         await signIn.finalize({
             navigate: async ({ session, decorateUrl }) => {
-                // Handle session tasks
-                // See https://clerk.com/docs/guides/development/custom-flows/authentication/session-tasks
                 if (session?.currentTask) {
                     console.log(session?.currentTask)
                     return
                 }
-
-                // If no session tasks, navigate the signed-in user to the home page
-                const url = decorateUrl('/')
+                const url = decorateUrl('/tasks')
                 if (url.startsWith('http')) {
                     window.location.href = url
                 } else {
@@ -39,15 +35,11 @@ export default function Page() {
     const finalizeSignUp = async () => {
         await signUp.finalize({
             navigate: async ({ session, decorateUrl }) => {
-                // Handle session tasks
-                // See https://clerk.com/docs/guides/development/custom-flows/authentication/session-tasks
                 if (session?.currentTask) {
                     console.log(session?.currentTask)
                     return
                 }
-
-                // If no session tasks, navigate the signed-in user to the home page
-                const url = decorateUrl('/')
+                const url = decorateUrl('/tasks')
                 if (url.startsWith('http')) {
                     window.location.href = url
                 } else {
@@ -128,15 +120,11 @@ export default function Page() {
                     await clerk.setActive({
                         session: sessionId,
                         navigate: async ({ session, decorateUrl }) => {
-                            // Handle session tasks
-                            // See https://clerk.com/docs/guides/development/custom-flows/authentication/session-tasks
                             if (session?.currentTask) {
                                 console.log(session?.currentTask)
                                 return
                             }
-
-                            // If no session tasks, navigate the signed-in user to the home page
-                            const url = decorateUrl('/')
+                            const url = decorateUrl('/tasks')
                             if (url.startsWith('http')) {
                                 window.location.href = url
                             } else {
