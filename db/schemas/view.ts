@@ -2,11 +2,13 @@ import { InferSelectModel, sql } from "drizzle-orm";
 import { boolean, check, foreignKey, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 export const views = pgTable("views", {
+    user_id: text("user_id").notNull(),
     id: uuid("id")
         .defaultRandom()
         .primaryKey(),
     title: text("title")
-        .notNull(),
+        .notNull()
+        .unique(),
     description: text("description"),
     createdAt: timestamp("created_at", {
         withTimezone: true,
@@ -30,7 +32,7 @@ export const views = pgTable("views", {
         foreignColumns: [table.id],
         name: "views_parent_id_fkey",
     }).onDelete("restrict"),
-    check("views_parent_id_check", sql`(parent_id IS NULL) OR (parent_id != id)`)
+    check("views_parent_id_check", sql`(parent_id IS NULL) OR (parent_id != id)`),
 ])
 
 export type ViewRecord = InferSelectModel<typeof views>;

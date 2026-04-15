@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 
 import viewRepo from "@/db/repos/view.repo";
 import { viewIdParamSchema } from "@/features/views/contracts/view.contract";
@@ -20,8 +21,13 @@ export async function POST(_: NextRequest, context: RouteContext) {
         );
     }
 
+    const { userId } = await auth();
+    if (!userId) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     try {
-        const disabled = await viewRepo.disableView(paramResult.data.id);
+        const disabled = await viewRepo.disableView(userId, paramResult.data.id);
         if (!disabled) {
             return NextResponse.json({ error: "View not found" }, { status: 404 });
         }

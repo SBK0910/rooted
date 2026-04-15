@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 
 import viewRepo from "@/db/repos/view.repo";
 import {
@@ -23,8 +24,13 @@ export async function GET(_: NextRequest, context: RouteContext) {
         );
     }
 
+    const { userId } = await auth();
+    if (!userId) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     try {
-        const view = await viewRepo.getViewById(paramResult.data.id);
+        const view = await viewRepo.getViewById(userId, paramResult.data.id);
         if (!view || !view.isActive) {
             return NextResponse.json({ error: "View not found" }, { status: 404 });
         }
@@ -60,8 +66,14 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         );
     }
 
+    const { userId } = await auth();
+    if (!userId) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     try {
         const updated = await viewRepo.updateView(
+            userId,
             paramResult.data.id,
             inputResult.data.title,
             inputResult.data.description,

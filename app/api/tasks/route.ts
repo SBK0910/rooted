@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 
 import taskRepo from "@/db/repos/task.repo";
 import {
@@ -10,6 +11,11 @@ import { HttpError } from "@/features/shared/errors/http-error";
 import { getTodayInTimezone } from "@/lib/utils";
 
 export async function GET(request: NextRequest) {
+    const { userId } = await auth();
+    if (!userId) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const queryResult = listTasksQuerySchema.safeParse({
         page: request.nextUrl.searchParams.get("page") ?? undefined,
         pageSize: request.nextUrl.searchParams.get("pageSize") ?? undefined,
@@ -30,6 +36,7 @@ export async function GET(request: NextRequest) {
             queryResult.data.page,
             queryResult.data.pageSize,
             queryResult.data.orderBy,
+            userId,
             queryResult.data.viewId,
             queryResult.data.scheduledDate
         );
@@ -54,6 +61,11 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+    const { userId } = await auth();
+    if (!userId) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body: unknown = await request.json();
     const inputResult = createTaskSchema.safeParse(body);
 
@@ -77,6 +89,7 @@ export async function POST(request: NextRequest) {
         const created = await taskRepo.createTask(
             inputResult.data.title,
             inputResult.data.scheduledDate,
+            userId,
             inputResult.data.description,
             inputResult.data.weight,
             inputResult.data.viewId

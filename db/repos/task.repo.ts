@@ -1,13 +1,13 @@
 import { and, asc, desc, DrizzleQueryError, eq, sql } from "drizzle-orm";
 import db from "..";
 import { TaskRecord, tasks } from "../schemas/task";
-import { DatabaseError } from "@neondatabase/serverless";
+import { NeonDbError } from "@neondatabase/serverless";
 import { withPagination } from "../utils/pagination";
 import { HttpError } from "@/features/shared/errors/http-error";
 import { ViewRecord } from "../schemas/view";
 
 class TaskRepo {
-    async fetchTaskTreeContextByDate(scheduledDate: string) {
+    async fetchTaskTreeContextByDate(scheduledDate: string, userId: string) {
         try {
             const result = await db.execute<{ payload: { tasks: TaskRecord[]; views: ViewRecord[] } }>(sql`
                 WITH RECURSIVE
@@ -15,6 +15,7 @@ class TaskRepo {
                     SELECT t.*
                     FROM tasks t
                     WHERE t.scheduled_date = CAST(${scheduledDate} AS date)
+                      AND t.user_id = ${userId}
                 ),
                 ancestor_views AS (
                     SELECT v.*, ARRAY[v.id] AS path
@@ -80,10 +81,12 @@ class TaskRepo {
         page: number,
         pageSize: number,
         orderBy: string,
+        userId: string,
         viewId?: string,
         scheduledDate?: string,
     ) {
         const conditions = [
+            eq(tasks.userid, userId),
             ...(viewId ? [eq(tasks.viewId, viewId)] : []),
             ...(scheduledDate ? [eq(tasks.scheduledDate, scheduledDate)] : []),
         ];
@@ -107,12 +110,12 @@ class TaskRepo {
         }
     }
 
-    async getTaskById(id: string) {
+    async getTaskById(id: string, userId: string) {
         try {
             const [task] = await db
                 .select()
                 .from(tasks)
-                .where(eq(tasks.id, id))
+                .where(and(eq(tasks.id, id), eq(tasks.userid, userId)))
                 .limit(1);
             return task ?? null;
         } catch {
@@ -123,6 +126,7 @@ class TaskRepo {
     async createTask(
         title: string,
         scheduledDate: string,
+        userId: string,
         description?: string,
         weight?: number,
         viewId?: string | null,
@@ -130,12 +134,12 @@ class TaskRepo {
         try {
             const [newTask] = await db
                 .insert(tasks)
-                .values({ title, scheduledDate, description, weight, viewId })
+                .values({ userid: userId, title, scheduledDate, description, weight, viewId })
                 .returning();
             return newTask;
         } catch (error) {
             if (error instanceof DrizzleQueryError) {
-                if (error.cause instanceof DatabaseError) {
+                if (error.cause instanceof NeonDbError) {
                     if (error.cause.code === "23503" && error.cause.constraint === "tasks_view_id_fkey") {
                         throw new HttpError(400, "Invalid viewId: referenced view does not exist.");
                     }
@@ -147,6 +151,7 @@ class TaskRepo {
 
     async updateTask(
         id: string,
+        userId: string,
         title?: string,
         description?: string,
         completed?: boolean,
@@ -158,12 +163,12 @@ class TaskRepo {
             const [updatedTask] = await db
                 .update(tasks)
                 .set({ title, description, completed, weight, scheduledDate, viewId })
-                .where(eq(tasks.id, id))
+                .where(and(eq(tasks.id, id), eq(tasks.userid, userId)))
                 .returning();
             return updatedTask ?? null;
         } catch (error) {
             if (error instanceof DrizzleQueryError) {
-                if (error.cause instanceof DatabaseError) {
+                if (error.cause instanceof NeonDbError) {
                     if (error.cause.code === "23503" && error.cause.constraint === "tasks_view_id_fkey") {
                         throw new HttpError(400, "Invalid viewId: referenced view does not exist.");
                     }
@@ -173,11 +178,11 @@ class TaskRepo {
         }
     }
 
-    async deleteTask(id: string) {
+    async deleteTask(id: string, userId: string) {
         try {
             const [deleted] = await db
                 .delete(tasks)
-                .where(eq(tasks.id, id))
+                .where(and(eq(tasks.id, id), eq(tasks.userid, userId)))
                 .returning();
             return deleted ?? null;
         } catch {

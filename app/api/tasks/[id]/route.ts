@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 
 import taskRepo from "@/db/repos/task.repo";
 import {
@@ -24,8 +25,13 @@ export async function GET(_: NextRequest, context: RouteContext) {
         );
     }
 
+    const { userId } = await auth();
+    if (!userId) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     try {
-        const task = await taskRepo.getTaskById(paramResult.data.id);
+        const task = await taskRepo.getTaskById(paramResult.data.id, userId);
         if (!task) {
             return NextResponse.json({ error: "Task not found" }, { status: 404 });
         }
@@ -61,8 +67,13 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         );
     }
 
+    const { userId } = await auth();
+    if (!userId) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     try {
-        const task = await taskRepo.getTaskById(paramResult.data.id);
+        const task = await taskRepo.getTaskById(paramResult.data.id, userId);
         if (!task) {
             return NextResponse.json({ error: "Task not found" }, { status: 404 });
         }
@@ -78,6 +89,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 
         const updated = await taskRepo.updateTask(
             paramResult.data.id,
+            userId,
             inputResult.data.title,
             inputResult.data.description,
             inputResult.data.completed,
@@ -111,8 +123,13 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
         );
     }
 
+    const { userId } = await auth();
+    if (!userId) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     try {
-        const task = await taskRepo.getTaskById(paramResult.data.id);
+        const task = await taskRepo.getTaskById(paramResult.data.id, userId);
         if (!task) {
             return NextResponse.json({ error: "Task not found" }, { status: 404 });
         }
@@ -126,7 +143,7 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
             );
         }
 
-        const deleted = await taskRepo.deleteTask(paramResult.data.id);
+        const deleted = await taskRepo.deleteTask(paramResult.data.id, userId);
         if (!deleted) {
             return NextResponse.json({ error: "Task not found" }, { status: 404 });
         }

@@ -15,6 +15,7 @@ import { views } from "./view";
 export const series = pgTable(
     "series",
     {
+        userid: text("user_id").notNull(),
         id: uuid("id").defaultRandom().primaryKey(),
         viewId: uuid("view_id").notNull(),
         title: text("title").notNull(),

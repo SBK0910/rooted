@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 
 import viewRepo from "@/db/repos/view.repo";
 import {
@@ -9,6 +10,11 @@ import { z } from "zod";
 import { HttpError } from "@/features/shared/errors/http-error";
 
 export async function GET(request: NextRequest) {
+    const { userId } = await auth();
+    if (!userId) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const queryResult = listViewsQuerySchema.safeParse({
         page: request.nextUrl.searchParams.get("page") ?? undefined,
         pageSize: request.nextUrl.searchParams.get("pageSize") ?? undefined,
@@ -25,11 +31,11 @@ export async function GET(request: NextRequest) {
 
     try {
         const data = await viewRepo.fetchViews(
+            userId,
             queryResult.data.page,
             queryResult.data.pageSize,
             queryResult.data.orderBy,
             queryResult.data.isActive
-
         );
         return NextResponse.json(
             {
@@ -50,6 +56,11 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+    const { userId } = await auth();
+    if (!userId) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body: unknown = await request.json();
     const inputResult = createViewSchema.safeParse(body);
 
@@ -62,6 +73,7 @@ export async function POST(request: NextRequest) {
 
     try {
         const created = await viewRepo.createView(
+            userId,
             inputResult.data.title,
             inputResult.data.description,
             inputResult.data.parentId

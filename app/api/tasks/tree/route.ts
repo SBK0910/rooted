@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 
 import taskRepo from "@/db/repos/task.repo";
 import { taskTreeQuerySchema } from "@/features/tasks/contracts/task.contract";
@@ -7,6 +8,11 @@ import { buildTaskTree } from "@/features/tasks/application/task-tree";
 import { z } from "zod";
 
 export async function GET(request: NextRequest) {
+    const { userId } = await auth();
+    if (!userId) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const queryResult = taskTreeQuerySchema.safeParse({
         scheduledDate: request.nextUrl.searchParams.get("scheduledDate") ?? undefined,
     });
@@ -19,7 +25,7 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-        const data = await taskRepo.fetchTaskTreeContextByDate(queryResult.data.scheduledDate);
+        const data = await taskRepo.fetchTaskTreeContextByDate(queryResult.data.scheduledDate, userId);
         const tree = buildTaskTree(data.tasks, data.views);
 
         return NextResponse.json(

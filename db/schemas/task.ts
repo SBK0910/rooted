@@ -16,6 +16,7 @@ import { views } from "./view";
 export const tasks = pgTable(
     "tasks",
     {
+        userid: text("user_id").notNull(),
         id: uuid("id").defaultRandom().primaryKey(),
         title: text("title").notNull(),
         description: text("description"),
