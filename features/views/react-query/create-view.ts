@@ -39,9 +39,9 @@ export function useCreateViewMutation() {
             queryClient.invalidateQueries({ queryKey: ["views"] });
         },
         onError: (error: unknown) => {
-            if (error instanceof Error) {
-                toast.error(error.message);
-            }
+            toast.error(
+                error instanceof Error ? error.message : "Failed to create view"
+            );
         }
     });
 }
