@@ -65,7 +65,7 @@ class ViewRepo {
                     if (error.cause.code === "23503" && error.cause.constraint === "views_parent_id_fkey") {
                         throw new HttpError(400, "Invalid parentId: referenced view does not exist.");
                     }
-                    if (error.cause.code === "23505" && error.cause.constraint === "views_title_key") {
+                    if (error.cause.code === "23505" && error.cause.constraint === "views_title_unique") {
                         throw new HttpError(409, "A view with the same title already exists.");
                     }
                 }
@@ -96,7 +96,7 @@ class ViewRepo {
                     if (error.cause.code === "23503" && error.cause.constraint === "views_parent_id_fkey") {
                         throw new HttpError(400, "Invalid parentId: referenced view does not exist.");
                     }
-                    if (error.cause.code === "23505" && error.cause.constraint === "views_title_key") {
+                    if (error.cause.code === "23505" && error.cause.constraint === "views_title_unique") {
                         throw new HttpError(409, "A view with the same title already exists.");
                     }
                 }

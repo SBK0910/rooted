@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { createViewSchema } from "../contracts/view.contract";
+import { toast } from "sonner";
 
 type CreateViewInput = z.infer<typeof createViewSchema>;
 
@@ -37,5 +38,10 @@ export function useCreateViewMutation() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["views"] });
         },
+        onError: (error: unknown) => {
+            toast.error(
+                error instanceof Error ? error.message : "Failed to create view"
+            );
+        }
     });
 }
