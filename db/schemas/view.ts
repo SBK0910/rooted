@@ -1,11 +1,12 @@
 import { InferSelectModel, sql } from "drizzle-orm";
-import { boolean, check, foreignKey, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { boolean, check, foreignKey, pgTable, text, timestamp, uuid, primaryKey } from "drizzle-orm/pg-core";
 
 export const views = pgTable("views", {
     user_id: text("user_id").notNull(),
     id: uuid("id")
         .defaultRandom()
-        .primaryKey(),
+        .unique()
+        .notNull(),
     title: text("title")
         .notNull()
         .unique(),
@@ -27,9 +28,13 @@ export const views = pgTable("views", {
         .default(true),
     parentId: uuid("parent_id"),
 }, (table) => [
+    primaryKey({
+        columns: [table.id, table.user_id],
+        name: "views_pkey",
+    }),
     foreignKey({
-        columns: [table.parentId],
-        foreignColumns: [table.id],
+        columns: [table.parentId, table.user_id],
+        foreignColumns: [table.id, table.user_id],
         name: "views_parent_id_fkey",
     }).onDelete("restrict"),
     check("views_parent_id_check", sql`(parent_id IS NULL) OR (parent_id != id)`),

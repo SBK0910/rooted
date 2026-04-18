@@ -29,6 +29,27 @@
       "when": 1776220974201,
       "tag": "0003_familiar_living_mummy",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1776510390282,
+      "tag": "0004_empty_chronomancer",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1776511246307,
+      "tag": "0005_talented_talisman",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1776511493403,
+      "tag": "0006_sharp_catseye",
+      "breakpoints": true
     }
   ]
 }

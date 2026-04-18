@@ -34,8 +34,8 @@ export const tasks = pgTable(
     },
     (table) => [
         foreignKey({
-            columns: [table.viewId],
-            foreignColumns: [views.id],
+            columns: [table.viewId, table.userid],
+            foreignColumns: [views.id, views.user_id],
             name: "tasks_view_id_fkey",
         }).onDelete("restrict"),
         foreignKey({

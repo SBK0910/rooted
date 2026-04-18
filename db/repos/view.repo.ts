@@ -10,12 +10,14 @@ class ViewRepo {
         const query = db
             .select()
             .from(views)
-            .where(eq(views.user_id, user_id))
             .$dynamic();
+        const conditions = [eq(views.user_id, user_id)];
         
         if (isActive !== undefined) {
-            query.where(eq(views.isActive, isActive));
+            conditions.push(eq(views.isActive, isActive));
         }
+
+        query.where(and(...conditions));
 
         if (orderBy.startsWith("-")) {
             query.orderBy(desc(views.createdAt));
