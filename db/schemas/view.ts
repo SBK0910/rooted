@@ -28,8 +28,8 @@ export const views = pgTable("views", {
     parentId: uuid("parent_id"),
 }, (table) => [
     foreignKey({
-        columns: [table.parentId],
-        foreignColumns: [table.id],
+        columns: [table.parentId, table.user_id],
+        foreignColumns: [table.id, table.user_id],
         name: "views_parent_id_fkey",
     }).onDelete("restrict"),
     check("views_parent_id_check", sql`(parent_id IS NULL) OR (parent_id != id)`),
