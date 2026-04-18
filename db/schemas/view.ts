@@ -5,7 +5,8 @@ export const views = pgTable("views", {
     user_id: text("user_id").notNull(),
     id: uuid("id")
         .defaultRandom()
-        .unique(),
+        .unique()
+        .notNull(),
     title: text("title")
         .notNull()
         .unique(),

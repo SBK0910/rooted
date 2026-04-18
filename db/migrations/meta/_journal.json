@@ -43,6 +43,13 @@
       "when": 1776511246307,
       "tag": "0005_talented_talisman",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1776511493403,
+      "tag": "0006_sharp_catseye",
+      "breakpoints": true
     }
   ]
 }
